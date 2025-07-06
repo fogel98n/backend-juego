@@ -1,21 +1,17 @@
-const connection = require('../models/db');
+const pool = require('../models/db');
 
 // Registrar usuario en partida verificando el código
-module.exports.registrarUsuario = (req, res) => {
+module.exports.registrarUsuario = async (req, res) => {
   const { nombre, codigo_partida } = req.body;
 
   if (!nombre || !codigo_partida) {
     return res.status(400).json({ error: "Nombre y código de partida son requeridos." });
   }
 
-  // Verificar si la partida existe y está en proceso
-  const queryPartida = 'SELECT id FROM partidas WHERE codigo_partida = ? AND estado = "en_proceso" LIMIT 1';
-
-  connection.query(queryPartida, [codigo_partida], (err, results) => {
-    if (err) {
-      console.error("Error al consultar partida:", err);
-      return res.status(500).json({ error: "Error en la base de datos." });
-    }
+  try {
+    // Verificar si la partida existe y está en proceso
+    const queryPartida = 'SELECT id FROM partidas WHERE codigo_partida = ? AND estado = "en_proceso" LIMIT 1';
+    const [results] = await pool.query(queryPartida, [codigo_partida]);
 
     if (results.length === 0) {
       return res.status(404).json({ message: "Código de partida no válido o partida finalizada." });
@@ -30,19 +26,18 @@ module.exports.registrarUsuario = (req, res) => {
       VALUES (?, ?, 'en_proceso')
     `;
 
-    connection.query(queryInsert, [nombre, correo], (err, result) => {
-      if (err) {
-        console.error("Error al insertar usuario:", err);
-        return res.status(500).json({ error: "Error al registrar usuario." });
-      }
+    const [result] = await pool.query(queryInsert, [nombre, correo]);
 
-      res.status(201).json({
-        id: result.insertId,
-        nombre,
-        correo,
-        estado: "en_proceso",
-        mensaje: "Usuario registrado correctamente en la partida."
-      });
+    res.status(201).json({
+      id: result.insertId,
+      nombre,
+      correo,
+      estado: "en_proceso",
+      mensaje: "Usuario registrado correctamente en la partida."
     });
-  });
+
+  } catch (err) {
+    console.error("Error al registrar usuario:", err);
+    res.status(500).json({ error: "Error interno del servidor." });
+  }
 };
