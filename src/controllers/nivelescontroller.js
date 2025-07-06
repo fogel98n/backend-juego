@@ -1,6 +1,6 @@
-const connection = require('../models/db');
+const pool = require('../models/db');
 
-module.exports.tNiveles = (req, res) => {
+module.exports.tNiveles = async (req, res) => {
   const id_juego = req.query.id_juego;
 
   let query = "SELECT * FROM niveles";
@@ -11,9 +11,11 @@ module.exports.tNiveles = (req, res) => {
     params.push(id_juego);
   }
 
-  connection.query(query, params, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
+  try {
+    const [results] = await pool.query(query, params);
     res.json(results);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
