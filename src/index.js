@@ -7,7 +7,11 @@ const port = 5000;
 
 // Configuración de CORS
 app.use(cors({
-  origin: ["http://127.0.0.1:5500", "http://localhost:5500"],
+  origin: [
+    "http://127.0.0.1:5500",
+    "http://localhost:5500",
+    "https://fogel98n.github.io"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"]
 }));
