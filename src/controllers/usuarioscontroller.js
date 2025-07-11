@@ -9,6 +9,7 @@ module.exports.registrarUsuario = async (req, res) => {
   }
 
   try {
+    // Verificar que la partida exista y esté activa
     const queryPartida = 'SELECT id FROM partidas WHERE codigo_partida = ? AND estado = "en_proceso" LIMIT 1';
     const [results] = await pool.query(queryPartida, [codigo_partida]);
 
@@ -16,10 +17,11 @@ module.exports.registrarUsuario = async (req, res) => {
       return res.status(404).json({ message: "Código de partida no válido o partida finalizada." });
     }
 
+    // Crear correo simulado para el usuario
     const correo = `${nombre.toLowerCase().replace(/\s+/g, "_")}@juego.com`;
 
+    // Insertar usuario
     const queryInsert = `INSERT INTO usuarios (nombre, correo, estado) VALUES (?, ?, 'en_proceso')`;
-
     const [result] = await pool.query(queryInsert, [nombre, correo]);
 
     res.status(201).json({
