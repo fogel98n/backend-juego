@@ -41,7 +41,8 @@ router.get("/simondice/resultados", simonDiceController.getResultadosSimonDice);
 router.post("/partidas", partidascontroller.crearPartida);
 router.get("/partidas/:id", partidascontroller.obtenerPartida);
 router.get("/partidas/codigo/:codigo", partidascontroller.obtenerPartidaPorCodigo);
-
+router.post("/partidas/iniciar", partidascontroller.cambiarEstadoPartida);
+router.get("/:id/estado",partidascontroller.obtenerEstadoPartida)
 // Rutas login
 router.post("/login", loginController.login);
 

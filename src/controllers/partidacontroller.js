@@ -1,6 +1,5 @@
 const pool = require('../models/db');
 
-// Función para generar un código único de partida
 function generarCodigoPartida() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -90,3 +89,45 @@ module.exports.obtenerPartidaPorCodigo = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+module.exports.cambiarEstadoPartida = async (req, res) => {
+  const{id_partida}=req.body;
+
+  if (!id_partida) {
+    return res.status(400).json({ error: "ID de partida es requerido." });
+  }
+
+   try{
+    const[result]=await pool.execute(
+      "UPDATE partidas SET estado = 'iniciada' WHERE id = ?",
+      [id_partida]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Partida no encontrada." });
+    }
+   
+   res.json({ message: "Estado de la partida actualizado a 'iniciada'." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+   }
+  
+  module.exports.obtenerEstadoPartida = async (req, res) => {
+    const{id}=req.params;
+
+    try{
+      const[rows]=await pool.execute(
+        "SELECT estado FROM partidas WHERE id = ?",
+        [id]
+      );
+      if (rows.length === 0) {
+        return res.status(404).json({ error: "Partida no encontrada." });
+      }
+      res.json({ estado: rows[0].estado });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+      console.error("Error al obtener el estado de la partida:", err);
+      res.status(500).json({ error: "Error al obtener el estado de la partida." }); 
+    }
+  }
