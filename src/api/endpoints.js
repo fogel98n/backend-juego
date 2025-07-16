@@ -42,7 +42,7 @@ router.post("/partidas", partidascontroller.crearPartida);
 router.get("/partidas/:id", partidascontroller.obtenerPartida);
 router.get("/partidas/codigo/:codigo", partidascontroller.obtenerPartidaPorCodigo);
 router.post("/partidas/iniciar", partidascontroller.cambiarEstadoPartida);
-router.get("partidas/:id/estado",partidascontroller.obtenerEstadoPartida)
+router.get("/partidas/:id/estado",partidascontroller.obtenerEstadoPartida)
 // Rutas login
 router.post("/login", loginController.login);
 
