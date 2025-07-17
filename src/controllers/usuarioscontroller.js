@@ -1,11 +1,11 @@
 const pool = require('../models/db');
 
-// Registrar usuario en tabla usuarios
+// Registrar usuario en tabla usuarios (con avatar)
 module.exports.registrarUsuario = async (req, res) => {
-  const { nombre, codigo_partida } = req.body;
+  const { nombre, codigo_partida, avatar } = req.body;
 
-  if (!nombre || !codigo_partida) {
-    return res.status(400).json({ error: "Nombre y código de partida son requeridos." });
+  if (!nombre || !codigo_partida || !avatar) {
+    return res.status(400).json({ error: "Nombre, código de partida y avatar son requeridos." });
   }
 
   try {
@@ -20,15 +20,16 @@ module.exports.registrarUsuario = async (req, res) => {
     // Crear correo simulado para el usuario
     const correo = `${nombre.toLowerCase().replace(/\s+/g, "_")}@juego.com`;
 
-    // Insertar usuario
-    const queryInsert = `INSERT INTO usuarios (nombre, correo, estado) VALUES (?, ?, 'en_proceso')`;
-    const [result] = await pool.query(queryInsert, [nombre, correo]);
+    // Insertar usuario con avatar
+    const queryInsert = `INSERT INTO usuarios (nombre, correo, estado, id_avatar) VALUES (?, ?, 'en_proceso', ?)`;
+    const [result] = await pool.query(queryInsert, [nombre, correo, avatar]);
 
     res.status(201).json({
       id: result.insertId,
       nombre,
       correo,
       estado: "en_proceso",
+      id_avatar: avatar,
       mensaje: "Usuario registrado correctamente en la partida.",
       id_partida: results[0].id
     });
@@ -71,7 +72,7 @@ module.exports.asociarUsuarioAPartida = async (req, res) => {
   }
 };
 
-// Obtener usuarios en partida por tipo
+// Obtener usuarios en partida por tipo (incluyendo avatar)
 module.exports.obtenerUsuariosEnPartidaPorTipo = async (req, res) => {
   const { tipo, idPartida } = req.params;
 
@@ -90,7 +91,7 @@ module.exports.obtenerUsuariosEnPartidaPorTipo = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      `SELECT u.id, u.nombre, u.correo
+      `SELECT u.id, u.nombre, u.correo, u.id_avatar
        FROM ${tabla} p
        JOIN usuarios u ON p.id_usuario = u.id
        WHERE p.id_partida = ? AND p.estado = 'en_juego'`,
