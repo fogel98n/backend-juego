@@ -1,5 +1,13 @@
 const pool = require('../models/db');
 
+const tablasValidas = {
+  emoji: "partida_emoji",
+  memoria: "partida_memoria",
+  fruta: "partida_fruta",
+  adivina: "partida_adivina",
+  simondice: "partida_simondice",
+};
+
 // Registrar usuario en tabla usuarios (con avatar)
 module.exports.registrarUsuario = async (req, res) => {
   const { nombre, codigo_partida, avatar } = req.body;
@@ -44,14 +52,6 @@ module.exports.registrarUsuario = async (req, res) => {
 module.exports.asociarUsuarioAPartida = async (req, res) => {
   const { id_usuario, id_partida, tipo_partida } = req.body;
 
-  const tablasValidas = {
-    emoji: "partida_emoji",
-    memoria: "partida_memoria",
-    fruta: "partida_fruta",
-    adivina: "partida_adivina",
-    simondice: "partida_simondice",
-  };
-
   const tabla = tablasValidas[tipo_partida];
   if (!tabla) {
     return res.status(400).json({ error: "Tipo de partida no válido" });
@@ -76,14 +76,6 @@ module.exports.asociarUsuarioAPartida = async (req, res) => {
 module.exports.obtenerUsuariosEnPartidaPorTipo = async (req, res) => {
   const { tipo, idPartida } = req.params;
 
-  const tablasValidas = {
-    emoji: "partida_emoji",
-    memoria: "partida_memoria",
-    fruta: "partida_fruta",
-    adivina: "partida_adivina",
-    simondice: "partida_simondice",
-  };
-
   const tabla = tablasValidas[tipo];
   if (!tabla) {
     return res.status(400).json({ mensaje: "Tipo de partida no válido" });
@@ -102,5 +94,35 @@ module.exports.obtenerUsuariosEnPartidaPorTipo = async (req, res) => {
   } catch (error) {
     console.error("Error al obtener usuarios:", error);
     res.status(500).json({ mensaje: "Error interno del servidor" });
+  }
+};
+
+// Cambiar estado de usuario en partida y tipo
+module.exports.cambiarEstadoUsuarioEnPartida = async (req, res) => {
+  const { id_usuario, id_partida, tipo_partida, nuevo_estado } = req.body;
+
+  if (!id_usuario || !id_partida || !tipo_partida || !nuevo_estado) {
+    return res.status(400).json({ error: "Faltan datos requeridos" });
+  }
+
+  const tabla = tablasValidas[tipo_partida];
+  if (!tabla) {
+    return res.status(400).json({ error: "Tipo de partida no válido" });
+  }
+
+  try {
+    const queryUpdate = `
+      UPDATE ${tabla} SET estado = ? WHERE id_partida = ? AND id_usuario = ?
+    `;
+    const [result] = await pool.query(queryUpdate, [nuevo_estado, id_partida, id_usuario]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ mensaje: "No se encontró el usuario en la partida" });
+    }
+
+    res.json({ mensaje: "Estado actualizado correctamente" });
+  } catch (error) {
+    console.error("Error al cambiar estado:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
   }
 };
