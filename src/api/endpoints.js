@@ -57,4 +57,7 @@ router.get("/usuarios/:tipo/:idPartida", usuariosController.obtenerUsuariosEnPar
 
 // ruta de avatares
 router.get("/avatares", avataresController.avatares);
+
+// cambiar ele estaodl de la partida 
+router.post("/usuarios/cambiar-estado", usuariosController.cambiarEstadoUsuarioEnPartida);
 module.exports = router;
