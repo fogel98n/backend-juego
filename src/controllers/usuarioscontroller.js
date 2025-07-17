@@ -72,7 +72,7 @@ module.exports.asociarUsuarioAPartida = async (req, res) => {
   }
 };
 
-// Obtener usuarios en partida por tipo (incluyendo avatar)
+// Obtener usuarios en partida por tipo (incluyendo avatar y estado)
 module.exports.obtenerUsuariosEnPartidaPorTipo = async (req, res) => {
   const { tipo, idPartida } = req.params;
 
@@ -91,10 +91,10 @@ module.exports.obtenerUsuariosEnPartidaPorTipo = async (req, res) => {
 
   try {
     const [rows] = await pool.query(
-      `SELECT u.id, u.nombre, u.correo, u.id_avatar
+      `SELECT u.id, u.nombre, u.correo, u.id_avatar, p.estado
        FROM ${tabla} p
        JOIN usuarios u ON p.id_usuario = u.id
-       WHERE p.id_partida = ? AND p.estado = 'en_juego'`,
+       WHERE p.id_partida = ?`,
       [idPartida]
     );
 
