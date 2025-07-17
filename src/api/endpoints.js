@@ -11,7 +11,7 @@ const partida_adivina = require("../controllers/paritda_adivina");
 const partida_emoji = require("../controllers/partida_emoji");
 const frutascontroller = require("../controllers/patida_adivinaLafruta");
 const simonDiceController = require("../controllers/partida_simondice");
-
+const avataresController = require("../controllers/avatares");
 // Importar controlador de usuarios
 const usuariosController = require("../controllers/usuarioscontroller");
 
@@ -55,4 +55,6 @@ router.post("/usuarios/registrar", usuariosController.registrarUsuario);
 router.post("/usuarios/asociar", usuariosController.asociarUsuarioAPartida);
 router.get("/usuarios/:tipo/:idPartida", usuariosController.obtenerUsuariosEnPartidaPorTipo);
 
+// ruta de avatares
+router.get("/avatares", avataresController.avatares);
 module.exports = router;
